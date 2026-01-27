@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { roomsService } from "../services/rooms.service";
 import type { ApiRoom } from "../types/room.api.types";
+import { TopicsSection } from "../components/topics/TopicsSection";
 
 export const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -36,6 +37,6 @@ export const RoomDetailsPage = () => {
       >
         Ingresar (join)
       </button>
-    </div>
+      {id && <TopicsSection roomId={id} />}    </div>
   );
 };
