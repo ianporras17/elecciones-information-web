@@ -2,6 +2,8 @@ import { useState } from "react";
 import { RoomBaseForm } from "../components/rooms/RoomBaseForm";
 import { PresidentialConfigForm } from "../components/rooms/presidential/PresidentialConfigForm";
 import type { CreateRoomPayload, PresidentialConfig } from "../types/room.types";
+import { roomsService } from "../services/rooms.service";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Página principal para la creación de salas
@@ -13,6 +15,7 @@ export const CreateRoomPage = () => {
    * Se setean una sola vez al completar el primer formulario
    */
   const [baseData, setBaseData] = useState<Omit<CreateRoomPayload, "config"> | null>(null);
+  const navigate = useNavigate();
 
   /**
    * Se ejecuta al completar el formulario base
@@ -25,21 +28,28 @@ export const CreateRoomPage = () => {
    * Se ejecuta al completar la configuración presidencial
    * Aquí se arma el payload final que irá al backend
    */
-  const handleConfigSubmit = (config: PresidentialConfig) => {
+  const handleConfigSubmit = async (config: PresidentialConfig) => {
     if (!baseData) return;
 
-    const payload: CreateRoomPayload = {
-      ...baseData,
-      config,
-    };
+    const created = await roomsService.createRoom({
+      name: baseData.name,
+      status: 'ACTIVE',
+    });
 
-    console.log("Payload final a enviar al backend:", payload);
-
-    // TODO: roomService.createRoom(payload)
+    navigate(`/rooms/${created.id}`);
   };
+
+  
 
   return (
     <div className="page-container">
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+        <button className="primary-btn" type="button" onClick={() => navigate("/rooms")}>
+          Ver salas
+        </button>
+      </div>
+
       {!baseData ? (
         <RoomBaseForm onSubmit={handleBaseSubmit} />
       ) : (
