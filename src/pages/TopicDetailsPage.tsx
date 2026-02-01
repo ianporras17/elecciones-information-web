@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { topicsService } from "../services/topics.service";
 import type { ApiTopic } from "../types/topic.api.types";
+import "../styles/topics.css";
 
 export const TopicDetailsPage = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [topic, setTopic] = useState<ApiTopic | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,67 +36,65 @@ export const TopicDetailsPage = () => {
 
   return (
     <div className="page-container">
-      <h2>{topic.title}</h2>
-      <p><b>Orden:</b> {topic.order}</p>
-      {topic.content && <p>{topic.content}</p>}
+      <div className="card">
+        <h2>{topic.title}</h2>
+        <p className="muted"><b>Orden:</b> {topic.order}</p>
+        {topic.content && <p>{topic.content}</p>}
+      </div>
 
       <h3>External Resources</h3>
 
       {topic.resources.length === 0 ? (
-        <p>No hay recursos externos.</p>
+        <p className="muted">No hay recursos externos.</p>
       ) : (
-        topic.resources.map((r) => (
-          <div
-            key={r.id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 10,
-              borderRadius: 8,
-              marginBottom: 8,
-              display: "grid",
-              gap: 6,
-            }}
-          >
-            <div><b>{r.type}</b> - {r.title}</div>
-            <a href={r.url} target="_blank" rel="noreferrer">{r.url}</a>
-            {r.description && <div>{r.description}</div>}
+        <div className="stack">
+          {topic.resources.map((r) => (
+            <div key={r.id} className="resource-card">
+              <div className="row space-between">
+                <div><b>{r.type}</b> - {r.title}</div>
+                <button
+                  className="primary-btn"
+                  type="button"
+                  onClick={async () => {
+                    const ok = window.confirm(`¿Eliminar el recurso "${r.title}"?`);
+                    if (!ok) return;
 
-            <div style={{ display: "flex", gap: 10 }}>
-              {/* (Opcional) editar después */}
-              {/* <button className="primary-btn" type="button">Editar</button> */}
+                    await topicsService.deleteResource(r.id);
+                    alert("Recurso eliminado con éxito.");
+                    await load();
+                  }}
+                >
+                  Eliminar
+                </button>
+              </div>
 
-              <button
-                className="primary-btn"
-                type="button"
-                onClick={async () => {
-                  const ok = window.confirm(`¿Eliminar el recurso "${r.title}"?`);
-                  if (!ok) return;
+              <a className="link" href={r.url} target="_blank" rel="noreferrer">
+                {r.url}
+              </a>
 
-                  await topicsService.deleteResource(r.id);
-
-                  // mensaje de éxito
-                  alert("Recurso eliminado con éxito.");
-
-                  // recargar topic
-                  await load();
-                }}
-              >
-                Eliminar
-              </button>
+              {r.description && <div className="muted">{r.description}</div>}
             </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
 
       <h3>TopicContent (por participante)</h3>
-      {topic.contents.map((c) => (
-        <div key={c.id} style={{ border: "1px solid #ddd", padding: 10, borderRadius: 8, marginBottom: 8 }}>
-          <div><b>participantId:</b> {c.participantId}</div>
-          <div>{c.content}</div>
+
+      {topic.contents.length === 0 ? (
+        <p className="muted">No hay contenidos todavía.</p>
+      ) : (
+        <div className="stack">
+          {topic.contents.map((c) => (
+            <div key={c.id} className="content-card">
+              <div className="muted"><b>participantId:</b> {c.participantId}</div>
+              <div>{c.content}</div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
 
       <form
+        className="card form-card"
         onSubmit={async (e) => {
           e.preventDefault();
           if (!id) return;
@@ -103,12 +103,28 @@ export const TopicDetailsPage = () => {
           setContent("");
           await load();
         }}
-        style={{ marginTop: 12, border: "1px solid #ddd", padding: 12, borderRadius: 8 }}
       >
-        <h4>Agregar/Actualizar contenido de participante</h4>
-        <input placeholder="participantId" value={participantId} onChange={(e) => setParticipantId(e.target.value)} />
-        <textarea placeholder="content" value={content} onChange={(e) => setContent(e.target.value)} />
-        <button className="primary-btn">Guardar</button>
+        <h4 className="form-title">Agregar/Actualizar contenido de participante</h4>
+
+        <div className="input-group">
+          <label>participantId</label>
+          <input
+            value={participantId}
+            onChange={(e) => setParticipantId(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label>content</label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
+
+        <div className="toolbar right">
+          <button className="primary-btn">Guardar</button>
+        </div>
       </form>
     </div>
   );

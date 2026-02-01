@@ -1,0 +1,232 @@
+✅/* ========== RESET / BASE ========== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ========== THEME TOKENS (LIGHT DASHBOARD) ========== */
+:root {
+  /* Fondo general: más gris suave */
+  --bg: #e7ecf3;
+
+  /* Superficies: no blanco puro */
+  --panel: #f3f6fb;     /* cards/inputs */
+  --panel-2: #e9eff8;   /* hover/secondary surfaces */
+  --border: rgba(15, 23, 42, 0.16);
+
+  /* Texto: menos contraste duro */
+  --text: #111827;
+  --muted: rgba(17, 24, 39, 0.60);
+
+  /* Brand */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-soft: rgba(37, 99, 235, 0.10);
+
+  /* Radius / shadow */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 5px 14px rgba(15, 23, 42, 0.06);
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3, h4 { margin: 0; letter-spacing: -0.2px; }
+
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.02rem; }
+
+.muted { color: var(--muted); }
+
+/* ========== LINKS ========== */
+a { color: inherit; text-decoration: none; }
+
+.link {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.link:hover { text-decoration: underline; }
+
+/* ========== LAYOUT ========== */
+/* Espacio para topbar fija (se ajusta en layout.css) */
+.app-content {
+  padding-top: 72px;
+}
+
+.page-container {
+  width: min(1040px, calc(100% - 32px));
+  margin: 28px auto;
+  display: grid;
+  gap: 16px;
+}
+
+/* Header dentro de la página (título + acciones) */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-title { font-size: 1.25rem; }
+.page-subtitle { margin-top: 2px; color: var(--muted); font-size: 0.95rem; }
+
+/* Para centrar formularios/cards (CreateRoom) */
+.center-wrap {
+  display: grid;
+  place-items: start center;
+}
+
+.center-wrap > .card,
+.center-wrap > form.card {
+  width: min(760px, 100%);
+}
+
+/* ========== CARDS ========== */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-title { font-weight: 800; }
+.card-subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+
+/* ========== GRID / FLEX UTILS ========== */
+.grid { display: grid; gap: 12px; }
+.stack { display: grid; gap: 10px; }
+
+.row { display: flex; align-items: center; gap: 10px; }
+.space-between { justify-content: space-between; }
+
+.toolbar { display: flex; gap: 10px; align-items: center; }
+.toolbar.right { justify-content: flex-end; }
+
+/* ========== FORMS ========== */
+.form-card { display: grid; gap: 12px; }
+.form-title { margin-bottom: 2px; }
+
+.input-group { display: grid; gap: 6px; }
+
+label { font-size: 0.9rem; color: var(--muted); }
+
+input,
+textarea,
+select {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+textarea { min-height: 90px; resize: vertical; }
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+/* ========== BUTTONS (VARIANTS) ========== */
+.btn {
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.93rem;
+  transition: background 0.2s ease, transform 0.05s ease, opacity 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-secondary {
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--panel-2);
+}
+
+/* Mantengo compat con tu clase vieja */
+.primary-btn { /* ahora es primary */
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-weight: 800;
+  font-size: 0.93rem;
+  transition: transform 0.05s ease, background 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.primary-btn:hover { background: var(--primary-hover); }
+.primary-btn:active { transform: translateY(1px); }
+.primary-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Nueva clase para “Volver” y acciones no principales */
+.secondary-btn {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.93rem;
+  cursor: pointer;
+}
+
+.secondary-btn:hover { background: var(--panel-2); }
+.secondary-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ========== FEEDBACK ========== */
+.error {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* ========== CHECKBOX ========== */
+.checkbox-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+}
+
+.checkbox-group input {
+  width: 18px;
+  height: 18px;
+}

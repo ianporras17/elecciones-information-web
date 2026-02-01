@@ -1,50 +1,37 @@
-import type { ApiRoom, CreateRoomApiPayload } from '../types/room.api.types';
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-
-async function http<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `HTTP ${res.status}`);
-  }
-
-  return res.json() as Promise<T>;
-}
+import api from "./auth.service";
+import type { ApiRoom, CreateRoomApiPayload } from "../types/room.api.types";
 
 export const roomsService = {
-  createRoom(payload: CreateRoomApiPayload) {
-    return http<ApiRoom>('/rooms', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+  async createRoom(payload: CreateRoomApiPayload) {
+    const res = await api.post<ApiRoom>("/rooms", payload);
+    return res.data;
   },
 
-  listRooms() {
-    return http<ApiRoom[]>('/rooms');
+  async listRooms() {
+    const res = await api.get<ApiRoom[]>("/rooms");
+    return res.data;
   },
 
-  getRoom(id: string) {
-    return http<ApiRoom>(`/rooms/${id}`);
+  async getRoom(id: string) {
+    const res = await api.get<ApiRoom>(`/rooms/${id}`);
+    return res.data;
   },
 
-  joinRoom(accessCode: string) {
-    return http<ApiRoom>('/rooms/join', {
-      method: 'POST',
-      body: JSON.stringify({ accessCode }),
-    });
+  async joinRoom(accessCode: string) {
+    const res = await api.post<ApiRoom>("/rooms/join", { accessCode });
+    return res.data;
   },
 
-  updateRoom(id: string, payload: { status?: "ACTIVE" | "INACTIVE"; name?: string }) {
-    return http<ApiRoom>(`/rooms/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-    });
-    },
+  async updateRoom(
+    id: string,
+    payload: { status?: "ACTIVE" | "INACTIVE"; name?: string; description?: string }
+  ) {
+    const res = await api.put<ApiRoom>(`/rooms/${id}`, payload);
+    return res.data;
+  },
+
+  async getMembers(roomId: string) {
+    const res = await api.get<any[]>(`/rooms/${roomId}/members`);
+    return res.data;
+  },
 };
-
-

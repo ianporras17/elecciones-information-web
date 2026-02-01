@@ -1,0 +1,42 @@
+.topics-section {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.topic-card {
+  display: grid;
+  gap: 8px;
+}
+
+.topic-content {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.resources-block {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.resource-item {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.resource-input {
+  background: var(--panel);
+}
+
+.resource-card,
+.content-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 8px;
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { topicsService } from "../../services/topics.service";
 import type { ApiTopic, CreateTopicPayload } from "../../types/topic.api.types";
 import { Link } from "react-router-dom";
+import "../../styles/topics.css";
 
 export const TopicsSection = ({ roomId }: { roomId: string }) => {
   const [topics, setTopics] = useState<ApiTopic[]>([]);
@@ -80,79 +81,123 @@ export const TopicsSection = ({ roomId }: { roomId: string }) => {
   };
 
   return (
-    <div style={{ marginTop: 20 }}>
-      <h3>Topics</h3>
-      {error && <p className="error">{error}</p>}
-
-      {/* LISTA */}
-      <div style={{ display: "grid", gap: 10, marginBottom: 16 }}>
-        {topics.map((t) => (
-          <div key={t.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-              <b>{t.order}. {t.title}</b>
-              <Link to={`/topics/${t.id}`}>Ver detalle</Link>
-            </div>
-            <div>Recursos: {t.resources.length} | Contenidos: {t.contents.length}</div>
-            {t.content && <div style={{ marginTop: 6 }}>{t.content}</div>}
-          </div>
-        ))}
-      </div>
-
-      {/* CREAR */}
-      <form onSubmit={submit} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-        <h4>Crear Topic</h4>
-
-        <div className="input-group">
-          <label>Título</label>
-          <input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
+      <section className="topics-section">
+        <div className="section-header">
+          <h3 className="section-title">Topics</h3>
         </div>
 
-        <div className="input-group">
-          <label>Contenido (opcional)</label>
-          <textarea value={form.content ?? ""} onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))} />
-        </div>
+        {error && <p className="error">{error}</p>}
 
-        <div style={{ marginTop: 10 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <b>External Resources (opcional)</b>
-            <button type="button" className="primary-btn" onClick={addResourceRow}>
-              + Recurso
-            </button>
-          </div>
+        {/* LISTA */}
+        <div className="grid">
+          {topics.map((t) => (
+            <div key={t.id} className="card topic-card">
+              <div className="row space-between">
+                <b>
+                  {t.order}. {t.title}
+                </b>
+                <Link className="link" to={`/topics/${t.id}`}>
+                  Ver detalle
+                </Link>
+              </div>
 
-          {(form.resources ?? []).map((r, i) => (
-            <div key={i} style={{ display: "grid", gap: 6, border: "1px solid #eee", padding: 10, borderRadius: 8, marginTop: 10 }}>
-              <input
-                placeholder="type (ej: LINK)"
-                value={r.type}
-                onChange={(e) => updateResourceRow(i, { type: e.target.value })}
-              />
-              <input
-                placeholder="title"
-                value={r.title}
-                onChange={(e) => updateResourceRow(i, { title: e.target.value })}
-              />
-              <input
-                placeholder="url (https://...)"
-                value={r.url}
-                onChange={(e) => updateResourceRow(i, { url: e.target.value })}
-              />
-              <input
-                placeholder="description"
-                value={r.description ?? ""}
-                onChange={(e) => updateResourceRow(i, { description: e.target.value })}
-              />
-              <button type="button" className="primary-btn" onClick={() => removeResourceRow(i)}>
-                Quitar
-              </button>
+              <div className="muted">
+                Recursos: {t.resources.length} | Contenidos: {t.contents.length}
+              </div>
+
+              {t.content && <div className="topic-content">{t.content}</div>}
             </div>
           ))}
         </div>
 
-        <div style={{ marginTop: 12 }}>
-          <button className="primary-btn">Crear Topic</button>
-        </div>
-      </form>
-    </div>
-  );
-};
+        {/* CREAR */}
+        <form className="card form-card" onSubmit={submit}>
+          <h4 className="form-title">Crear Topic</h4>
+
+          <div className="input-group">
+            <label>Título</label>
+            <input
+              value={form.title}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, title: e.target.value }))
+              }
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Contenido (opcional)</label>
+            <textarea
+              value={form.content ?? ""}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, content: e.target.value }))
+              }
+            />
+          </div>
+
+          <div className="resources-block">
+            <div className="toolbar space-between">
+              <b>External Resources (opcional)</b>
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={addResourceRow}
+              >
+                + Recurso
+              </button>
+            </div>
+
+            <div className="stack">
+              {(form.resources ?? []).map((r, i) => (
+                <div key={i} className="resource-item card">
+                  <input
+                    className="resource-input"
+                    placeholder="type (ej: LINK)"
+                    value={r.type}
+                    onChange={(e) => updateResourceRow(i, { type: e.target.value })}
+                  />
+                  <input
+                    className="resource-input"
+                    placeholder="title"
+                    value={r.title}
+                    onChange={(e) =>
+                      updateResourceRow(i, { title: e.target.value })
+                    }
+                  />
+                  <input
+                    className="resource-input"
+                    placeholder="url (https://...)"
+                    value={r.url}
+                    onChange={(e) =>
+                      updateResourceRow(i, { url: e.target.value })
+                    }
+                  />
+                  <input
+                    className="resource-input"
+                    placeholder="description"
+                    value={r.description ?? ""}
+                    onChange={(e) =>
+                      updateResourceRow(i, { description: e.target.value })
+                    }
+                  />
+
+                  <div className="toolbar right">
+                    <button
+                      type="button"
+                      className="primary-btn"
+                      onClick={() => removeResourceRow(i)}
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="toolbar right">
+            <button className="primary-btn">Crear Topic</button>
+          </div>
+        </form>
+      </section>
+    );
+  };

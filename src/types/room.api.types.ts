@@ -1,6 +1,7 @@
 export type ApiRoom = {
   id: string;
   title: string;
+  description?: string | null;
   accessCode: string;
   isActive: boolean;
   createdAt: string;
@@ -9,5 +10,6 @@ export type ApiRoom = {
 
 export type CreateRoomApiPayload = {
   name: string;
+  description?: string;
   status: 'ACTIVE' | 'INACTIVE';
 };

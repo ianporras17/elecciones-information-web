@@ -1,160 +1,129 @@
-/* ===============================
-   RESET BÁSICO (CLAVE)
-   Evita que inputs se salgan
-================================ */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-/* ===============================
-   Pantalla completa
-================================ */
 .auth-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e40af, #2563eb);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* ===============================
-   Wrapper (no tocar bordes)
-================================ */
-.auth-wrapper {
-  width: 100%;
-  max-width: 440px;
+  display: grid;
+  place-items: center;
   padding: 24px;
-  text-align: center;
-  color: white;
+  background: var(--bg);
 }
 
-/* ===============================
-   Título
-================================ */
+.auth-wrapper {
+  width: min(520px, 100%);
+  display: grid;
+  gap: 14px;
+}
+
 .auth-title {
-  margin-bottom: 20px;
-  font-size: 1.75rem;
-  white-space: nowrap;
-}
-
-/* ===============================
-   Card
-================================ */
-.auth-card {
-  background: white;
-  color: #1e293b;
-  padding: 30px;
-  border-radius: 18px;
-  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
-  animation: fadeIn 0.4s ease;
-}
-
-/* ===============================
-   Inputs
-================================ */
-.input-group {
-  margin-bottom: 16px;
-  text-align: left;
-}
-
-.input-group label {
-  font-size: 0.85rem;
+  font-size: 1.6rem;
+  text-align: center;
   margin-bottom: 6px;
-  display: block;
-  color: #334155;
 }
 
-.input-group input {
-  width: 100%;
-  height: 44px;                 /* altura consistente */
-  padding: 0 44px 0 12px;       /* espacio reservado para el ojo */
-  border-radius: 10px;
-  border: 1px solid #cbd5f5;
-  outline: none;
-  font-size: 0.95rem;
+.auth-switch {
+  text-align: center;
+  color: var(--muted);
 }
 
-.input-group input:focus {
-  border-color: #2563eb;
+.auth-switch span {
+  color: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
 }
 
-/* ===============================
-   Password
-================================ */
+.auth-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 12px;
+}
+
 .password-group {
   position: relative;
 }
 
-/* Ojo DENTRO del input, centrado correctamente */
 .toggle-password {
   position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
+  right: 10px;
+  top: 32px;
+  border: 0;
+  background: transparent;
   cursor: pointer;
-  font-size: 1rem;
-  color: #2563eb;
-  padding: 0;
+  font-size: 1.05rem;
 }
 
-/* ===============================
-   Errores
-================================ */
-.error {
-  font-size: 0.75rem;
-  color: #dc2626;
-  margin-top: 4px;
-  display: block;
+/* =========================
+   MODAL (tema claro) - FIX
+   ========================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);   /* oscurece el fondo */
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  z-index: 5000;
 }
 
-/* ===============================
-   Botón principal
-================================ */
-.primary-btn {
+.modal-content {
+  width: min(520px, 100%);
+  text-align: center;
+
+  /* modal sólido */
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 18px;
+  padding: 22px 22px 18px;
+
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
+  color: var(--text);
+}
+
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin: 0 0 6px;
+}
+
+.modal-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.modal-subtext {
+  margin: 10px 0 16px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.modal-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.modal-actions .primary-btn {
   width: 100%;
-  height: 46px;                 /* evita botón “inflado” */
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 14px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.primary-btn:hover {
-  background: #1e40af;
-  transform: translateY(-2px);
-}
-
-/* ===============================
-   Switch login / signup
-================================ */
-.auth-switch {
-  margin-top: 16px;
-}
-
-.auth-switch span {
-  cursor: pointer;
-  text-decoration: underline;
-  color: #bfdbfe;
-}
-
-/* ===============================
-   Animación
-================================ */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+/* responsive */
+@media (max-width: 420px) {
+  .modal-content {
+    padding: 18px 16px 14px;
   }
 }

@@ -4,6 +4,7 @@ import { PresidentialConfigForm } from "../components/rooms/presidential/Preside
 import type { CreateRoomPayload, PresidentialConfig } from "../types/room.types";
 import { roomsService } from "../services/rooms.service";
 import { useNavigate } from "react-router-dom";
+import "../styles/rooms.css";
 
 /**
  * Página principal para la creación de salas
@@ -33,6 +34,7 @@ export const CreateRoomPage = () => {
 
     const created = await roomsService.createRoom({
       name: baseData.name,
+      description: baseData.description,
       status: 'ACTIVE',
     });
 
@@ -43,18 +45,13 @@ export const CreateRoomPage = () => {
 
   return (
     <div className="page-container">
-
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-        <button className="primary-btn" type="button" onClick={() => navigate("/rooms")}>
-          Ver salas
-        </button>
+      <div className="center-wrap">
+        {!baseData ? (
+          <RoomBaseForm onSubmit={handleBaseSubmit} />
+        ) : (
+          <PresidentialConfigForm onSubmit={handleConfigSubmit} />
+        )}
       </div>
-
-      {!baseData ? (
-        <RoomBaseForm onSubmit={handleBaseSubmit} />
-      ) : (
-        <PresidentialConfigForm onSubmit={handleConfigSubmit} />
-      )}
     </div>
   );
 };

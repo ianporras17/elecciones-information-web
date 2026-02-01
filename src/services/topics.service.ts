@@ -1,54 +1,37 @@
+import api from "./auth.service";
 import type { ApiTopic, CreateTopicPayload, ApiExternalResource } from "../types/topic.api.types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-
-async function http<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `HTTP ${res.status}`);
-  }
-  return res.json() as Promise<T>;
-}
-
 export const topicsService = {
-  listByRoom(roomId: string) {
-    return http<ApiTopic[]>(`/rooms/${roomId}/topics`);
+  async listByRoom(roomId: string) {
+    const res = await api.get<ApiTopic[]>(`/rooms/${roomId}/topics`);
+    return res.data;
   },
 
-  create(roomId: string, payload: CreateTopicPayload) {
-    return http<ApiTopic>(`/rooms/${roomId}/topics`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+  async create(roomId: string, payload: CreateTopicPayload) {
+    const res = await api.post<ApiTopic>(`/rooms/${roomId}/topics`, payload);
+    return res.data;
   },
 
-  get(topicId: string) {
-    return http<ApiTopic>(`/topics/${topicId}`);
+  async get(topicId: string) {
+    const res = await api.get<ApiTopic>(`/topics/${topicId}`);
+    return res.data;
   },
 
-  addResource(topicId: string, payload: { type: string; title: string; url: string; description?: string; order?: number }) {
-    return http<ApiExternalResource>(`/topics/${topicId}/resources`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+  async addResource(
+    topicId: string,
+    payload: { type: string; title: string; url: string; description?: string; order?: number }
+  ) {
+    const res = await api.post<ApiExternalResource>(`/topics/${topicId}/resources`, payload);
+    return res.data;
   },
 
-  upsertContent(topicId: string, payload: { participantId: string; content: string }) {
-    return http(`/topics/${topicId}/contents`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
+  async upsertContent(topicId: string, payload: { participantId: string; content: string }) {
+    const res = await api.put(`/topics/${topicId}/contents`, payload);
+    return res.data;
   },
 
-  deleteResource(resourceId: string) {
-    return http<void>(`/external-resources/${resourceId}`, {
-        method: "DELETE",
-    });
-    },
-
+  async deleteResource(resourceId: string) {
+    const res = await api.delete(`/external-resources/${resourceId}`);
+    return res.data;
+  },
 };

@@ -36,7 +36,7 @@ export const RoomBaseForm = ({ onSubmit }: Props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="card" onSubmit={handleSubmit}>
       <h2>Datos de la sala</h2>
 
       <div className="input-group">

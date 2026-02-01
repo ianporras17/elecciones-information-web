@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { roomsService } from "../services/rooms.service";
 import type { ApiRoom } from "../types/room.api.types";
+import "../styles/rooms.css";
 
 export const RoomsListPage = () => {
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState<ApiRoom[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -41,28 +43,20 @@ export const RoomsListPage = () => {
 
   return (
     <div className="page-container">
-      <h2>Salas creadas</h2>
-
       {error && <p className="error">{error}</p>}
 
-      <div style={{ display: "grid", gap: 12 }}>
+      <div className="rooms-grid">
         {rooms.map((r) => (
-          <div
-            key={r.id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 12,
-              borderRadius: 8,
-              display: "grid",
-              gap: 6,
-            }}
-          >
-            <div><b>{r.title}</b></div>
-            <div>Código: <b>{r.accessCode}</b></div>
-            <div>Estado: {r.isActive ? "ACTIVA" : "INACTIVA"}</div>
+          <div key={r.id} className="room-card">
+            <div className="room-title"><b>{r.title}</b></div>
+            {r.description && (
+              <div className="muted">{r.description}</div>
+            )}
+            <div className="muted">Código: <b>{r.accessCode}</b></div>
+            <div className="muted">Estado: {r.isActive ? "ACTIVA" : "INACTIVA"}</div>
 
-            <div style={{ marginTop: 8, display: "flex", gap: 12, alignItems: "center" }}>
-              <Link to={`/rooms/${r.id}`}>Ver info</Link>
+            <div className="room-actions">
+              <Link className="link" to={`/rooms/${r.id}`}>Ver info</Link>
 
               <button
                 className="primary-btn"

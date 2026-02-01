@@ -1,0 +1,51 @@
+.rooms-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 840px) {
+  .rooms-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.room-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 8px;
+}
+
+.room-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.room-title {
+  font-size: 1.05rem;
+}
+
+.members-grid {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .members-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.member-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}

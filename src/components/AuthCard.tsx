@@ -4,13 +4,14 @@ import { loginAdmin, registerAdmin } from "../services/auth.service";
 
 interface Props {
   mode: "login" | "signup";
+  onRegistroExitoso?: () => void;
 }
 
 /**
  * Componente de autenticación
  * Maneja login y registro según modo activo
  */
-export const AuthCard = ({ mode }: Props) => {
+export const AuthCard = ({ mode, onRegistroExitoso }: Props) => {
   const navigate = useNavigate();
 
   // Estado para mostrar u ocultar contraseña
@@ -26,6 +27,7 @@ export const AuthCard = ({ mode }: Props) => {
   // Mensajes de error frontend / backend
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [registroExitoso, setRegistroExitoso] = useState(false);
 
   /**
    * Limpia estado al cambiar entre login / signup
@@ -86,17 +88,16 @@ export const AuthCard = ({ mode }: Props) => {
           password: form.password,
         });
 
-        alert("Administrador registrado correctamente ✅");
+        setRegistroExitoso(true);
       } else {
         const response = await loginAdmin({
           identifier: form.email,
           password: form.password,
         });
 
-        // Guardar token JWT
-        localStorage.setItem("token", response.token);
+        localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("user", JSON.stringify(response.user));
 
-        // 👉 Redirección tras login exitoso
         navigate("/rooms/create");
       }
     } catch (err: any) {
@@ -109,6 +110,66 @@ export const AuthCard = ({ mode }: Props) => {
       setLoading(false);
     }
   };
+
+  if (registroExitoso) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <div className="modal-icon">✅</div>
+
+          <h2 className="modal-title">¡Éxito!</h2>
+
+          <p className="modal-text">
+            Tu cuenta de administrador ha sido creada correctamente.
+          </p>
+
+          <p className="modal-subtext">
+            Ahora puedes iniciar sesión con tus credenciales.
+          </p>
+
+          <div className="modal-actions">
+            <button
+              className="primary-btn"
+              type="button"
+              onClick={() => {
+                setRegistroExitoso(false);
+                onRegistroExitoso?.();
+              }}
+            >
+              Ir a iniciar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (registroExitoso) {
+  return (
+    <div className="modal-overlay">
+      <div className="auth-card modal-content">
+        <div className="modal-icon">✅</div>
+        <h2>¡Éxito!</h2>
+        <p className="modal-text">
+          Tu cuenta de administrador ha sido creada correctamente.
+        </p>
+        <p className="modal-subtext">
+          Ahora puedes iniciar sesión con tus credenciales.
+        </p>
+        <button
+          className="primary-btn"
+          type="button"
+          onClick={() => {
+            setRegistroExitoso(false);
+            onRegistroExitoso?.();
+          }}
+        >
+          Ir a iniciar sesión
+        </button>
+      </div>
+    </div>
+  );
+}
 
   return (
     <form className="auth-card" onSubmit={handleSubmit}>

@@ -4,6 +4,11 @@ import { AuthCard } from "../components/AuthCard";
 export const AuthPage = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
 
+  // Cuando el usuario completa el registro exitosamente, cambia a login automáticamente
+  const handleRegistroExitoso = () => {
+    setMode("login");
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-wrapper">
@@ -11,7 +16,7 @@ export const AuthPage = () => {
           Bienvenido a DecideHub&nbsp;-&nbsp;Admin
         </h1>
 
-        <AuthCard mode={mode} />
+        <AuthCard mode={mode} onRegistroExitoso={handleRegistroExitoso} />
 
         <div className="auth-switch">
           {mode === "login" ? (
