@@ -5,6 +5,14 @@ import type { ApiTopic } from "../types/topic.api.types";
 import "../styles/topics.css";
 import { candidatesService, type ApiCandidate } from "../services/candidates.service";
 
+type NewResourceForm = {
+  type: "LINK" | "VIDEO" | "DOCUMENT";
+  title: string;
+  url: string;
+  description: string;
+  order: number;
+};
+
 export const TopicDetailsPage = () => {
   const { id } = useParams();
   const [topic, setTopic] = useState<ApiTopic | null>(null);
@@ -18,6 +26,17 @@ export const TopicDetailsPage = () => {
   const [candidates, setCandidates] = useState<ApiCandidate[]>([]);
   const [proposalDrafts, setProposalDrafts] = useState<Record<string, string>>({});
   const [savingProposalId, setSavingProposalId] = useState<string | null>(null);
+
+  // ✅ External resources: agregar
+  const [resForm, setResForm] = useState<NewResourceForm>({
+    type: "LINK",
+    title: "",
+    url: "",
+    description: "",
+    order: 0,
+  });
+  const [savingRes, setSavingRes] = useState(false);
+  const [resMsg, setResMsg] = useState<string | null>(null);
 
   const load = async () => {
     if (!id) return;
@@ -113,9 +132,7 @@ export const TopicDetailsPage = () => {
                       className="secondary-btn"
                       type="button"
                       disabled={!changed || savingProposalId === c.id}
-                      onClick={() =>
-                        setProposalDrafts((p) => ({ ...p, [c.id]: saved }))
-                      }
+                      onClick={() => setProposalDrafts((p) => ({ ...p, [c.id]: saved }))}
                     >
                       Descartar
                     </button>
@@ -157,6 +174,109 @@ export const TopicDetailsPage = () => {
           ======================= */}
       <h3>External Resources</h3>
 
+      {/* ✅ FORM: agregar recurso */}
+      <div className="card form-card">
+        <h4 className="form-title">Agregar recurso</h4>
+        {resMsg && <p className="muted">{resMsg}</p>}
+
+        <div className="grid">
+          <div className="input-group">
+            <label>Tipo</label>
+            <select
+              value={resForm.type}
+              onChange={(e) =>
+                setResForm((p) => ({ ...p, type: e.target.value as any }))
+              }
+            >
+              <option value="LINK">LINK</option>
+              <option value="VIDEO">VIDEO</option>
+              <option value="DOCUMENT">DOCUMENT</option>
+            </select>
+          </div>
+
+          <div className="input-group">
+            <label>Título</label>
+            <input
+              value={resForm.title}
+              onChange={(e) => setResForm((p) => ({ ...p, title: e.target.value }))}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>URL (http/https)</label>
+            <input
+              value={resForm.url}
+              onChange={(e) => setResForm((p) => ({ ...p, url: e.target.value }))}
+              placeholder="https://..."
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Descripción (opcional)</label>
+            <input
+              value={resForm.description}
+              onChange={(e) => setResForm((p) => ({ ...p, description: e.target.value }))}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Orden</label>
+            <input
+              type="number"
+              value={resForm.order}
+              onChange={(e) => setResForm((p) => ({ ...p, order: Number(e.target.value) }))}
+              min={0}
+            />
+          </div>
+        </div>
+
+        <div className="toolbar right">
+          <button
+            className="secondary-btn"
+            type="button"
+            disabled={savingRes}
+            onClick={() => {
+              setResForm({ type: "LINK", title: "", url: "", description: "", order: 0 });
+              setResMsg(null);
+            }}
+          >
+            Limpiar
+          </button>
+
+          <button
+            className="primary-btn"
+            type="button"
+            disabled={savingRes || !resForm.title.trim() || !resForm.url.trim()}
+            onClick={async () => {
+              if (!id) return;
+              try {
+                setSavingRes(true);
+                setResMsg(null);
+
+                await topicsService.addResource(id, {
+                  type: resForm.type,
+                  title: resForm.title.trim(),
+                  url: resForm.url.trim(),
+                  description: resForm.description.trim() ? resForm.description.trim() : undefined,
+                  order: resForm.order ?? 0,
+                });
+
+                setResForm({ type: "LINK", title: "", url: "", description: "", order: 0 });
+                setResMsg("Recurso agregado ✅");
+                await load();
+              } catch (e: any) {
+                setResMsg(`Error agregando recurso: ${String(e?.message ?? e)}`);
+              } finally {
+                setSavingRes(false);
+              }
+            }}
+          >
+            {savingRes ? "Guardando..." : "Agregar"}
+          </button>
+        </div>
+      </div>
+
+      {/* LISTA de recursos */}
       {topic.resources.length === 0 ? (
         <p className="muted">No hay recursos externos.</p>
       ) : (
