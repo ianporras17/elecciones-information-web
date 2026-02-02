@@ -22,7 +22,7 @@ export const PresidentialConfigForm = ({ onSubmit }: Props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="card" onSubmit={handleSubmit}>
       <h2>Configuración de elecciones presidenciales</h2>
 
       <label className="checkbox-group">

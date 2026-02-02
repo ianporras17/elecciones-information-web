@@ -48,7 +48,7 @@ export const registerAdmin = async (data: {
   email: string;
   password: string;
 }) => {
-  const response = await api.post("/auth/register", data);
+  const response = await api.post("/auth/register/admin", data);
   return response.data;
 };
 
@@ -59,7 +59,7 @@ export const loginAdmin = async (data: {
   identifier: string; // username o email
   password: string;
 }) => {
-  const response = await api.post("/auth/login", data);
+  const response = await api.post("/auth/login/admin", data);
   return response.data;
 };
 
