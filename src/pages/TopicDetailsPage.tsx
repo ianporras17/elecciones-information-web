@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { topicsService } from "../services/topics.service";
 import type { ApiTopic } from "../types/topic.api.types";
 import "../styles/topics.css";
+import { candidatesService, type ApiCandidate } from "../services/candidates.service";
 
 export const TopicDetailsPage = () => {
-  const navigate = useNavigate();
   const { id } = useParams();
   const [topic, setTopic] = useState<ApiTopic | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // TopicContent (por participante)
   const [participantId, setParticipantId] = useState("");
   const [content, setContent] = useState("");
+
+  // Propuestas por candidato
+  const [candidates, setCandidates] = useState<ApiCandidate[]>([]);
+  const [proposalDrafts, setProposalDrafts] = useState<Record<string, string>>({});
+  const [savingProposalId, setSavingProposalId] = useState<string | null>(null);
 
   const load = async () => {
     if (!id) return;
@@ -19,7 +25,18 @@ export const TopicDetailsPage = () => {
       setError(null);
       const data = await topicsService.get(id);
       setTopic(data);
-// eslint-disable-next-line
+
+      // cargar candidatos de la sala para poder editar propuestas
+      const cand = await candidatesService.list(data.roomId);
+      setCandidates(cand);
+
+      // inicializar drafts con lo que ya existe
+      const drafts: Record<string, string> = {};
+      cand.forEach((c) => {
+        const existing = data.proposals?.find((p) => p.candidateId === c.id)?.content ?? "";
+        drafts[c.id] = existing;
+      });
+      setProposalDrafts(drafts);
     } catch (e: any) {
       setError(String(e?.message ?? e));
     }
@@ -29,7 +46,16 @@ export const TopicDetailsPage = () => {
     (async () => {
       await load();
     })();
+    // eslint-disable-next-line
   }, [id]);
+
+  const proposalsMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (topic?.proposals ?? []).forEach((p: any) => {
+      map[p.candidateId] = p.content;
+    });
+    return map;
+  }, [topic]);
 
   if (error) return <div className="page-container"><p className="error">{error}</p></div>;
   if (!topic) return <div className="page-container"><p>Cargando...</p></div>;
@@ -39,9 +65,96 @@ export const TopicDetailsPage = () => {
       <div className="card">
         <h2>{topic.title}</h2>
         <p className="muted"><b>Orden:</b> {topic.order}</p>
+        <p className="muted"><b>Tipo:</b> {topic.topicType ?? "—"}</p>
         {topic.content && <p>{topic.content}</p>}
       </div>
 
+      {/* =======================
+          PROPUESAS POR CANDIDATO
+          ======================= */}
+      <div className="card form-card">
+        <h3>Propuestas por candidato</h3>
+        <p className="muted">
+          Aquí defines la propuesta de cada candidato para este topic. (Esto alimenta el torneo.)
+        </p>
+
+        {candidates.length === 0 ? (
+          <p className="muted">No hay candidatos en esta sala todavía.</p>
+        ) : (
+          <div className="stack">
+            {candidates.map((c) => {
+              const saved = proposalsMap[c.id] ?? "";
+              const draft = proposalDrafts[c.id] ?? "";
+              const changed = draft !== saved;
+
+              return (
+                <div key={c.id} className="content-card">
+                  <div className="row space-between">
+                    <b>{c.name}</b>
+                    <span className="muted">
+                      {saved.trim() ? "✅ Tiene propuesta" : "— Sin propuesta"}
+                    </span>
+                  </div>
+
+                  <div className="input-group" style={{ marginTop: 10 }}>
+                    <label>Propuesta</label>
+                    <textarea
+                      value={draft}
+                      onChange={(e) =>
+                        setProposalDrafts((p) => ({ ...p, [c.id]: e.target.value }))
+                      }
+                      placeholder="Escribe la propuesta del candidato para este tema..."
+                      maxLength={2000}
+                    />
+                  </div>
+
+                  <div className="toolbar right">
+                    <button
+                      className="secondary-btn"
+                      type="button"
+                      disabled={!changed || savingProposalId === c.id}
+                      onClick={() =>
+                        setProposalDrafts((p) => ({ ...p, [c.id]: saved }))
+                      }
+                    >
+                      Descartar
+                    </button>
+
+                    <button
+                      className="primary-btn"
+                      type="button"
+                      disabled={savingProposalId === c.id}
+                      onClick={async () => {
+                        if (!id) return;
+                        try {
+                          setSavingProposalId(c.id);
+
+                          await topicsService.upsertProposal(id, {
+                            candidateId: c.id,
+                            content: (proposalDrafts[c.id] ?? "").trim(),
+                          });
+
+                          await load();
+                        } catch (e: any) {
+                          alert(`Error guardando propuesta: ${String(e?.message ?? e)}`);
+                        } finally {
+                          setSavingProposalId(null);
+                        }
+                      }}
+                    >
+                      {savingProposalId === c.id ? "Guardando..." : "Guardar propuesta"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* =======================
+          EXTERNAL RESOURCES
+          ======================= */}
       <h3>External Resources</h3>
 
       {topic.resources.length === 0 ? (
@@ -78,6 +191,9 @@ export const TopicDetailsPage = () => {
         </div>
       )}
 
+      {/* =======================
+          TOPIC CONTENT
+          ======================= */}
       <h3>TopicContent (por participante)</h3>
 
       {topic.contents.length === 0 ? (

@@ -4,6 +4,7 @@ import { roomsService } from "../services/rooms.service";
 import type { ApiRoom } from "../types/room.api.types";
 import { TopicsSection } from "../components/topics/TopicsSection";
 import "../styles/rooms.css";
+import { candidatesService, type ApiCandidate } from "../services/candidates.service";
 
 export const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -12,9 +13,16 @@ export const RoomDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<any[]>([]);
 
+  // description edit
   const [descDraft, setDescDraft] = useState("");
   const [savingDesc, setSavingDesc] = useState(false);
   const [descMsg, setDescMsg] = useState<string | null>(null);
+
+  // candidates
+  const [candidates, setCandidates] = useState<ApiCandidate[]>([]);
+  const [candName, setCandName] = useState("");
+  const [candMsg, setCandMsg] = useState<string | null>(null);
+  const [candLoading, setCandLoading] = useState(false);
 
   const loadRoom = async () => {
     if (!id) return;
@@ -22,7 +30,7 @@ export const RoomDetailsPage = () => {
       setError(null);
       const r = await roomsService.getRoom(id);
       setRoom(r);
-      setDescDraft(r.description ?? ""); 
+      setDescDraft(r.description ?? "");
     } catch (e: any) {
       setError(String(e?.message ?? e));
     }
@@ -33,14 +41,21 @@ export const RoomDetailsPage = () => {
     try {
       const data = await roomsService.getMembers(id);
       setMembers(data);
-    } catch {
-      // no bloquear la UI si falla members
-    }
+    } catch {}
+  };
+
+  const loadCandidates = async () => {
+    if (!id) return;
+    try {
+      const data = await candidatesService.list(id);
+      setCandidates(data);
+    } catch {}
   };
 
   useEffect(() => {
     loadRoom();
     loadMembers();
+    loadCandidates();
     // eslint-disable-next-line
   }, [id]);
 
@@ -72,6 +87,7 @@ export const RoomDetailsPage = () => {
         </div>
       </div>
 
+      {/* EDIT DESCRIPTION */}
       <div className="card form-card">
         <h4 className="form-title">Editar descripción</h4>
 
@@ -131,6 +147,66 @@ export const RoomDetailsPage = () => {
         </div>
       </div>
 
+      {/* CANDIDATES */}
+      <div className="card form-card">
+        <h3>Candidatos</h3>
+        <p className="muted">Crea candidatos de la sala para poder definir propuestas y torneos por tema.</p>
+
+        {candMsg && <p className="muted">{candMsg}</p>}
+
+        <div className="grid">
+          {candidates.length === 0 ? (
+            <p className="muted">No hay candidatos todavía.</p>
+          ) : (
+            candidates.map((c) => (
+              <div key={c.id} className="member-card">
+                <b>{c.name}</b>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="input-group">
+          <label>Nombre del candidato</label>
+          <input
+            value={candName}
+            onChange={(e) => {
+              setCandName(e.target.value);
+              setCandMsg(null);
+            }}
+            placeholder="Ej: Juan Pérez"
+          />
+        </div>
+
+        <div className="toolbar right">
+          <button
+            className="primary-btn"
+            type="button"
+            disabled={!candName.trim() || candLoading}
+            onClick={async () => {
+              if (!id) return;
+              try {
+                setCandLoading(true);
+                setCandMsg(null);
+
+                await candidatesService.create(id, candName.trim());
+                setCandName("");
+                setCandMsg("Candidato creado ✅");
+
+                await loadCandidates();
+              } catch (e: any) {
+                setCandMsg(`Error creando candidato: ${String(e?.message ?? e)}`);
+              } finally {
+                setCandLoading(false);
+              }
+            }}
+          >
+            {candLoading ? "Creando..." : "Crear candidato"}
+          </button>
+        </div>
+      </div>
+
+      {/* MEMBERS */}
       <h3>Miembros</h3>
       {members.length === 0 ? (
         <p className="muted">No hay miembros en esta sala.</p>

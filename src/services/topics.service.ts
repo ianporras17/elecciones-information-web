@@ -34,4 +34,9 @@ export const topicsService = {
     const res = await api.delete(`/external-resources/${resourceId}`);
     return res.data;
   },
+
+  async upsertProposal(topicId: string, payload: { candidateId: string; content: string }) {
+    const res = await api.put(`/topics/${topicId}/proposals`, payload);
+    return res.data;
+  },
 };
